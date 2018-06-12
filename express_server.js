@@ -26,7 +26,9 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // debug statement to see POST parameters
+  //console.log(req.body);  // debug statement to see POST parameters
+  var shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
@@ -43,8 +45,21 @@ app.get("/", (req, res) => {
   res.render("./pages/index");
 }); 
 
-function generateRandomString() {
+app.get("/u/:shortURL", (req, res) => {
+  // let longURL = ...
+  console.log(req.params.shortURL);
+  var longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
 
+function generateRandomString() {
+  var guid = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 6; i++)
+    guid += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return guid;
 }
 
  
