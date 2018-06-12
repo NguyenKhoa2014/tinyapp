@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+  <head>
+        <% include ./partials/head %>
+  </head>
+</head>
+<body>
+    <!-- Add your EJS code here -->
+    <header>
+            <% include ./partials/_header %>
+    </header>
+    <ul>
+      <!--   <%= JSON.stringify(urls, null, 2)%> -->
+      <% for(item in urls) { %>
+           <li> <a href="<%= urls[item] %>" target="blank">Short URL:<%= item %></a> - Long URL:<%= urls[item] %></li>
+    <% }; %>  
+    </ul>
+</body>
+</html>
