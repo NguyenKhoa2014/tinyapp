@@ -19,7 +19,9 @@
 <body class="container">
     <header>
         <% include ./partials/_header %>
+         
     </header>
+     
     <h2>ShortURL: <%= shortURL %></h2>
     <form method="POST" action="/urls/<%= shortURL %>/put">
         <input value="<%= longURL %>" name="longURL"class="form-input"/>

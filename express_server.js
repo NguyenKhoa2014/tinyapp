@@ -4,7 +4,9 @@ var express = require('express');
 var app = express();
 var PORT = 8080;
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 app.set("view engine", "ejs");
 var urlDatabase = {
@@ -12,7 +14,11 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
  };
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  console.log(req.cookies["username"]);
+  let templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies['username']
+   };
   for(var item in templateVars){
     //console.log('test',item, templateVars[item]);
     for(var item1 in templateVars[item]){
@@ -28,16 +34,18 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/new", (req, res) => {
   //console.log(req.body);  // debug statement to see POST parameters
   var shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request
-  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request 
   res.redirect('/urls')
 });
 
 app.get("/urls/:id", (req, res) => {
+  //const usernameCookie = getUserName();
   let templateVars = { 
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id] 
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies['username']
   };
+   
   res.render("urls_show", templateVars);
 });
 
@@ -55,10 +63,10 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
    
-  console.log(req.params.id);
+  //console.log(req.params.id);
   var deleteURL = req.params.id;
   delete urlDatabase[deleteURL];
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
   res.redirect("/urls"); //redirect 
 })
 
@@ -78,8 +86,13 @@ app.post("/urls/:id/put", (req, res)=> {
   //console.log(req.body['longURL']);
   //console.log(req.params.id);
   urlDatabase[req.params.id] = req.body.longURL;
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
   res.redirect('/urls');
+})
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('urls');
 })
 
 function generateRandomString() {
@@ -92,6 +105,7 @@ function generateRandomString() {
   return guid;
 }
 
+ 
  
 
 
