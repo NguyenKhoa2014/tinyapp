@@ -25,11 +25,12 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-app.post("/urls", (req, res) => {
+app.post("/urls/new", (req, res) => {
   //console.log(req.body);  // debug statement to see POST parameters
   var shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect('/urls')
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -72,8 +73,13 @@ app.get("/urls/:id/put", (req, res) => {
 })
 
 app.post("/urls/:id/put", (req, res)=> {
-  console.log("in post");
-  console.log(req.params);
+  //console.log("in post");
+  //console.log(req.body.longURL);
+  //console.log(req.body['longURL']);
+  //console.log(req.params.id);
+  urlDatabase[req.params.id] = req.body.longURL;
+  console.log(urlDatabase);
+  res.redirect('/urls');
 })
 
 function generateRandomString() {

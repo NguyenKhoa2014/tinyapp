@@ -24,27 +24,34 @@
   <header>
     <% include ./partials/_header %>
   </header>
+  <main>
+      <div class="jumbotron"> 
   <ul>
     <!--   <%= JSON.stringify(urls, null, 2)%> -->
 
     <% for(item in urls) { %>
       <li style="display: flex;line-height: 2; margin-bottom: 5px;">
-          <a href="<%= urls[item] %>" target="blank" class="form-item">
-              Short URL:
+          <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;">
+              
                 <%= item %>
-              - Long URL:
+                <span class="glyphicon n glyphicon-arrow-right"></span>
+              
               <%= urls[item] %>
             </a>          
             <form method="GET" action="/urls/<%= item %>/put" class="form-item">
-              <input type="submit" value="Update" name="id" class="form-button"/>
+              <button type="submit" value="Update" name="id" id="<%= item %>" class="btn btn-default">Update <span class="glyphicon glyphicon-edit"></span></button>
             </form>
             <form method="POST" action="/urls/<%= item %>/delete" class="form-item">
-               
-                <input type="submit" value="Delete" name="id" class="form-button"/>
+              <button type="submit" value="Delete" name="id" id="<%= item %>" class="btn btn-danger">Delete <span class="glyphicon glyphicon-trash"></span></button>
             </form>
       </li>
       <% }; %>
   </ul>
+  </div>
+</main>
+<footer>
+    <% include ./partials/footer %>
+</footer>
 </body>
 
 </html>
