@@ -1,21 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>TinyApp</title>
+
   <head>
-        <% include ./partials/head %>
+    <% include ./partials/head %>
+    <style>
+      .form-item{
+        margin: 2px;
+      }
+      .form-button {
+        border-radius: 15%;
+        background: grey;
+        color: white;
+      }
+    </style>
   </head>
 </head>
+
 <body class="container">
-    <!-- Add your EJS code here -->
-    <header>
-            <% include ./partials/_header %>
-    </header>
-    <ul>
-      <!--   <%= JSON.stringify(urls, null, 2)%> -->
-      <% for(item in urls) { %>
-           <li> <a href="<%= urls[item] %>" target="blank">Short URL:<%= item %></a> - Long URL:<%= urls[item] %></li>
-    <% }; %>  
-    </ul>
+  <!-- Add your EJS code here -->
+  <header>
+    <% include ./partials/_header %>
+  </header>
+  <ul>
+    <!--   <%= JSON.stringify(urls, null, 2)%> -->
+
+    <% for(item in urls) { %>
+      <li style="display: flex;line-height: 2; margin-bottom: 5px;">
+          <a href="<%= urls[item] %>" target="blank" class="form-item">
+              Short URL:
+                <%= item %>
+              - Long URL:
+              <%= urls[item] %>
+            </a>          
+            <form method="GET" action="/urls/<%= item %>/put" class="form-item">
+              <input type="submit" value="Update" name="id" class="form-button"/>
+            </form>
+            <form method="POST" action="/urls/<%= item %>/delete" class="form-item">
+               
+                <input type="submit" value="Delete" name="id" class="form-button"/>
+            </form>
+      </li>
+      <% }; %>
+  </ul>
 </body>
+
 </html>

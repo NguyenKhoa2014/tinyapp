@@ -1,13 +1,33 @@
 <html lang="en">
+
 <head>
     <% include ./partials/head %>
+    <style>
+            .form-item{
+              margin: 2px;
+            }
+            .form-button {
+              border-radius: 10%;
+              background: aqua;
+            }
+            .form-input{
+                width: 300px;
+            }
+          </style>
 </head>
-<body>
 
-   <p>
-   ShortURL: <%= shortURL  %> 
-   </p>  
-   <p>Long URL: <%= longURL  %></p> 
-
+<body class="container">
+    <header>
+        <% include ./partials/_header %>
+    </header>
+    <h2>ShortURL: <%= shortURL %></h2>
+    <form method="POST" action="/urls/<%= shortURL %>/put">
+        <input value="<%= longURL %>" name="longURL"class="form-input"/>
+        <input type="submit" value="Update" name="id" class="form-button"/>
+    </form>
+    <footer>
+        <% include ./partials/footer %>
+    </footer>
 </body>
+
 </html>

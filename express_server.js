@@ -52,6 +52,30 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+   
+  console.log(req.params.id);
+  var deleteURL = req.params.id;
+  delete urlDatabase[deleteURL];
+  console.log(urlDatabase);
+  res.redirect("/urls"); //redirect 
+})
+
+app.get("/urls/:id/put", (req, res) => {
+   
+  let templateVars = { 
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id] 
+  };
+  res.render("urls_show", templateVars);
+
+})
+
+app.post("/urls/:id/put", (req, res)=> {
+  console.log("in post");
+  console.log(req.params);
+})
+
 function generateRandomString() {
   var guid = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
