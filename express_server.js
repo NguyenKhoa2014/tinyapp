@@ -24,53 +24,85 @@ const users = {
     email: "user2@example.com", 
     password: "dishwasher-funk"
   }
-} 
-app.get("/urls", (req, res) => {
-  console.log(req.cookies["username"]);
-  let templateVars = { 
-    urls: urlDatabase,
-    username: req.cookies['username'],
-    users: users
-   };
-  for(var item in templateVars){
-    //console.log('test',item, templateVars[item]);
-    for(var item1 in templateVars[item]){
-      console.log(templateVars[item][item1])
+}
+function findUserById(id){
+  for(let key in users){
+    let user = users[key];
+    if ( user.id === id){
+      return true;
     }
+    return false;
   }
-  res.render("urls_index", templateVars);
+}
+
+app.get("/urls", (req, res) => {
+  var id = req.cookies['user_id'];
+  var foundUser = findUserById(id);
+  var user = {
+    id: "", 
+     
+  };
+ 
+  if (foundUser){
+    user['id'] = id;
+    console.log(user);
+    let templateVars = { 
+      urls: urlDatabase,
+      users: users,
+      user: user
+     };
+     rer.render('urls_index', templateVars);
+  } else {
+    let templateVars = { 
+      urls: urlDatabase,
+      users: users,
+      user: user
+     };
+    res.render('urls_index', templateVars);
+  }  
+
 });
 
 app.get("/urls/new", (req, res) => {
-   
+  id = req.cookies['user_id'];
+  const user = {
+    id: id
+  } 
   let templateVars = { 
     urls: urlDatabase,
-    username: req.cookies['username']
+    // username: req.cookies['username'],
+    user: user
    };
+   console.log(templateVars);
   res.render("urls_new", templateVars);
 });
 app.post("/urls/new", (req, res) => {
-  //console.log(req.body);  // debug statement to see POST parameters
+   
   var shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request 
   res.redirect('/urls')
 });
 
 app.get("/urls/:id", (req, res) => {
-  //const usernameCookie = getUserName();
+  const id = req.cookies.user_id;
+  const user = users[id];
   let templateVars = { 
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies['username']
+    user
   };
    
   res.render("urls_show", templateVars);
 });
 
 app.get("/", (req, res) => {
+  var id = req.cookies['user_id'];
+  var user = {
+    id: id
+  }
   let templateVars = { 
     urls: urlDatabase,
-    username: req.cookies['username']
+    user: user,
    }; 
   res.render("./pages/index", templateVars);
 }); 
@@ -92,7 +124,7 @@ app.post("/urls/:id/delete", (req, res) => {
 })
 
 app.get("/urls/:id/put", (req, res) => {
-   
+  const id = req.cookies.user_id; 
   let templateVars = { 
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
@@ -112,28 +144,83 @@ app.post("/urls/:id/put", (req, res)=> {
   res.redirect('/urls');
 })
 
+ 
+app.get('/login', (req, res) => {
+  
+  res.render('login');
+})
+
+function validateLogin(data){
+  let email = data.email;
+  let password = data.password;
+  const isValidLogin = true;
+  for(let key in users){
+    let user = users[key];
+    if (user.email === email && user.password === password) {
+      return true;
+    }
+  }
+  return false;
+}
+
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('urls');
+  // res.cookie('username', req.body.username);
+  const email = req.body.email;
+  const password = req.body.password;
+  const data = {
+    email: email,
+    password: password
+  }
+  const validUser = validateLogin(data);
+  console.log('valid user ', validUser);
+  let templateVars = { 
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id]
+  };
+  if (validUser){
+    res.redirect('urls');
+  } else {
+    res.status(403);
+    console.log(res.status);
+    res.render('login' );
+  }
+   
+})
+
+app.get('/logout', (req, res) => {
+  const user = {};
+  let templateVars = { 
+    shortURL: req.params.id,
+    longURL: urlDatabase[req.params.id],
+    user: user
+  };
+  res.render('logout',templateVars);
 })
 
 app.post('/logout', (req, res) => {
-  if(req.cookies['username']){
-    res.clearCookie('username');
+  if(req.cookies['user_id']){
+    res.clearCookie('user_id');
   }
-  res.redirect('urls'); 
+  res.redirect('login'); 
 })
 
 app.get("/register", (req, res) => {
+  const user = {};
   let templateVars = { 
     urls: urlDatabase,
     username: req.cookies['username'],
+    user_id: false,
+    email: false,
     error: false,
     message: false,
-    emailError: false
+    emailError: false,
+    user: user
    };
-  console.log('get for register');
-  res.render('register', templateVars);
+  console.log('get for register', req.cookies['user_id']);
+  if(!req.cookies['user_id']){
+    res.render('register', templateVars);
+  } 
+   
 })
 
 function validateData(data) {
@@ -155,7 +242,7 @@ app.post("/register", (req, res) => {
   console.log('post for register');
   const id = generateUserID();
   //console.log(req.body);
- 
+  let user = {};
   const valid = validateData(req.body);
   console.log(valid);
   if (valid){
@@ -164,7 +251,7 @@ app.post("/register", (req, res) => {
     const existing = checkExistingEmail(email);
     if (!existing){
       const password = req.body.password;
-      const user = {
+      user = {
         id: id_str,
         email: email,
         password: password
@@ -172,8 +259,9 @@ app.post("/register", (req, res) => {
       users[id] = user;
       res.cookie('user_id', id_str);
       res.redirect('urls');
-      res.status(200);
+       
     } else {
+      const user = { id :req.cookie['user_id']}
       let templateVars = { 
         urls: urlDatabase,
         username: req.cookies['username'],
@@ -181,7 +269,8 @@ app.post("/register", (req, res) => {
         message: false,
         email: req.body.email,
         password: req.body.password,
-        emailError: 'email exists in our database'
+        emailError: 'email exists in our database',
+        user: user
        };
        res.render('register', templateVars); 
     }
@@ -201,6 +290,8 @@ app.post("/register", (req, res) => {
   }
    
 })
+
+ 
 
 
 function generateRandomString() {

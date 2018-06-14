@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>URLS-TinyApp</title>
+
+  <head>
+    <% include ./partials/head %>
+    <style>
+      .form-item{
+        margin: 2px;
+      }
+      .form-button {
+        border-radius: 15%;
+        background: grey;
+        color: white;
+      }
+    </style>
+  </head>
+</head>
+
+<body class="container">
+  <!-- Add your EJS code here -->
+  <header>
+    <% include ./partials/_header %>
+  </header>
+  <main>
+      <div class="jumbotron"> 
+          <form method="POST" action="/logout" style="display:flex;">
+            <!-- <%= user['id'] %> -->
+            <input type="submit" value="logout" class="btn btn-default" style="margin-left: 5px; line-height: 0.6;"/> 
+        </form> 
+      </div>
+</main>
+<footer>
+    <% include ./partials/footer %>
+</footer>
+</body>
+
+</html>
