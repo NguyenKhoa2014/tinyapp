@@ -117,6 +117,13 @@ app.post('/login', (req, res) => {
   res.redirect('urls');
 })
 
+app.post('/logout', (req, res) => {
+  if(req.cookies['username']){
+    res.clearCookie('username');
+  }
+  res.redirect('urls'); 
+})
+
 app.get("/register", (req, res) => {
   let templateVars = { 
     urls: urlDatabase,
