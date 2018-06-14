@@ -51,7 +51,7 @@ app.get("/urls", (req, res) => {
       users: users,
       user: user
      };
-     rer.render('urls_index', templateVars);
+     res.render('urls_index', templateVars);
   } else {
     let templateVars = { 
       urls: urlDatabase,
@@ -70,7 +70,7 @@ app.get("/urls/new", (req, res) => {
   } 
   let templateVars = { 
     urls: urlDatabase,
-    // username: req.cookies['username'],
+     
     user: user
    };
    console.log(templateVars);
@@ -124,12 +124,14 @@ app.post("/urls/:id/delete", (req, res) => {
 })
 
 app.get("/urls/:id/put", (req, res) => {
-  const id = req.cookies.user_id; 
+  const id = req.cookies.user_id;
+  const user = users[id];
   let templateVars = { 
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies['username'], 
-  };
+    user
+  }; 
+ 
   res.render("urls_show", templateVars);
 
 })
@@ -157,14 +159,14 @@ function validateLogin(data){
   for(let key in users){
     let user = users[key];
     if (user.email === email && user.password === password) {
-      return true;
+      //return true;
+      return user;
     }
   }
   return false;
 }
 
 app.post('/login', (req, res) => {
-  // res.cookie('username', req.body.username);
   const email = req.body.email;
   const password = req.body.password;
   const data = {
@@ -178,6 +180,9 @@ app.post('/login', (req, res) => {
     longURL: urlDatabase[req.params.id]
   };
   if (validUser){
+    console.log('validuser id ', validUser.id);
+    //set cookie -- 
+    res.cookie('user_id', validUser.id);
     res.redirect('urls');
   } else {
     res.status(403);
@@ -208,7 +213,6 @@ app.get("/register", (req, res) => {
   const user = {};
   let templateVars = { 
     urls: urlDatabase,
-    username: req.cookies['username'],
     user_id: false,
     email: false,
     error: false,
@@ -261,10 +265,10 @@ app.post("/register", (req, res) => {
       res.redirect('urls');
        
     } else {
-      const user = { id :req.cookie['user_id']}
+      let tmp_id = req.cookie['user_id']? req.cookie['user_id'] : '';
+      const user = { id : tmp_id};
       let templateVars = { 
         urls: urlDatabase,
-        username: req.cookies['username'],
         error: true,
         message: false,
         email: req.body.email,
@@ -276,16 +280,18 @@ app.post("/register", (req, res) => {
     }
  
   } else {
+    let user = {
+      email: req.body.email,
+      password: req.body.password,
+      id: ''
+    }
     let templateVars = { 
       urls: urlDatabase,
-      username: req.cookies['username'],
       error: true,
       message: 'all fields are required',
-      email: req.body.email,
-      password: req.body.password
+      user: user 
      };
      res.status(400);
-     //res.send('all fields are required');
      res.render('register', templateVars); 
   }
    

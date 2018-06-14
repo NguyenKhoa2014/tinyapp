@@ -14,8 +14,12 @@
               <li><a href="/urls">urls</a></li>
               <li><a href="/urls/new">new</a></li>
               <li><a href="/register">register</a></li>
-              <li><a href="/login">login</a></li>
-              <li><a href="/logout">logout</a></li>
+ 
+              <% if(!user.id ){ %>
+                <li><a href="/login">login</a></li>
+              <% } else{ %>
+                <li><a href="/logout"><%= user.id %><span style="margin-left: 15px;">logout</span> </a></li>
+              <% } %>
               <!-- <li style="margin-left:200px;"><a href="#"> 
                     <% if(user === {} || !user){ %>
                         <form method="POST" action="/login" style="display:flex;">
