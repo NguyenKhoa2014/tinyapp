@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Register-TinyApp</title>
+
+  <head>
+    <% include ./partials/head %>
+ 
+  </head>
+</head>
+
+<body class="container">
+  <!-- Add your EJS code here -->
+  <header>
+    <% include ./partials/_header %>
+  </header>
+  <% if (message) { %>
+    <h4 class="alert alert-warning">Error: <%= message %></h4>
+  <% } %>
+  <% if (emailError) { %>
+    <h4 class="alert alert-warning">Error: <%= emailError %></h4>
+  <% } %>
+  <main>
+      <div class="jumbotron"> 
+          <form method="POST" action="/register">
+            <input name="email" id="email" value= "<%= locals.email%>" type="email" placeholder="Enter email" class="form-control"/>
+            <input name="password" id="password" value= "<%= locals.password%>" type="password" placeholder="Enter password" class="form-control"/>
+            <input type="submit" class="btn btn-default"/> 
+        </form>   
+      </div>
+</main>
+<footer>
+    <% include ./partials/footer %>
+</footer>
+</body>
+
+</html>
+
+ 
