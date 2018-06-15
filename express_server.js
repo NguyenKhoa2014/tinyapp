@@ -13,11 +13,17 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
  };
+ var urlDatabase1 = {
+  "b2xVn2": {url:"http://www.lighthouselabs.ca", user_id:"userRandomID"},
+  "9sm5xK": {url:"http://www.google.com", user_id:"user2RandomID"},
+  "6sm5xL": {url:"http://www.cnn.com", user_id:"user2RandomID"},  
+ };
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "purple-monkey-dinosaur",
+  
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -26,18 +32,30 @@ const users = {
   }
 }
 function findUserById(id){
+  var flag = false;
   for(let key in users){
     let user = users[key];
-    if ( user.id === id){
-      return true;
+    if (user.id === id){
+      flag = true;
     }
-    return false;
   }
+  return flag;
 }
-
+function urlsForUser(id){
+  const urls = {}
+  for(let item in urlDatabase1){
+    if (urlDatabase1[item].user_id === id){
+      urls[item] = urlDatabase1[item].url;
+    }
+  }
+  console.log('in urls', urls);
+  return urls;
+} 
 app.get("/urls", (req, res) => {
   var id = req.cookies['user_id'];
+  console.log("testing id", id);
   var foundUser = findUserById(id);
+  console.log("found user :", foundUser);
   var user = {
     id: "", 
      
@@ -46,15 +64,23 @@ app.get("/urls", (req, res) => {
   if (foundUser){
     user['id'] = id;
     console.log(user);
+    console.log(id);
+    var urls = urlsForUser(id);
+    console.log("test ", urls);
     let templateVars = { 
-      urls: urlDatabase,
+      // urls: urlDatabase1,
+      urls: urls,
       users: users,
       user: user
      };
+     console.log('found user');
+     for(var item in urlDatabase1){
+       console.log(item, urlDatabase1[item].user_id, urlDatabase1[item].url)
+     }
      res.render('urls_index', templateVars);
   } else {
     let templateVars = { 
-      urls: urlDatabase,
+      urls: urlDatabase1,
       users: users,
       user: user
      };
@@ -63,14 +89,25 @@ app.get("/urls", (req, res) => {
 
 });
 
-app.get("/urls/new", (req, res) => {
+function ensureLoggedIn(req, res, next){
+  const userId = req.cookies.user_id;
+  if (userId){
+    res.locals.user = users[userId];
+    res.locals.urls = urlDatabase;
+    return next();
+  } else {
+    return res.redirect('/login')
+  }
+}
+
+// app.get("/urls/new", ensureLoggedIn, (req, res) => {
+  app.get("/urls/new", ensureLoggedIn, (req, res) => {
   id = req.cookies['user_id'];
   const user = {
     id: id
   } 
   let templateVars = { 
     urls: urlDatabase,
-     
     user: user
    };
    console.log(templateVars);
@@ -152,19 +189,30 @@ app.get('/login', (req, res) => {
   res.render('login');
 })
 
+// function validateLogin(data){
+//   let email = data.email;
+//   let password = data.password;
+//   const isValidLogin = true;
+//   for(let key in users){
+//     let user = users[key];
+//     if (user.email === email && user.password === password) {
+//       //return true;
+//       return user;
+//     }
+//   }
+//   return false;
+// }
 function validateLogin(data){
   let email = data.email;
   let password = data.password;
-  const isValidLogin = true;
   for(let key in users){
-    let user = users[key];
-    if (user.email === email && user.password === password) {
-      //return true;
-      return user;
+    if (users[key].email === email && users[key].password=== password) {
+      return users[key];
     }
   }
   return false;
 }
+
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
@@ -175,15 +223,15 @@ app.post('/login', (req, res) => {
   }
   const validUser = validateLogin(data);
   console.log('valid user ', validUser);
-  let templateVars = { 
-    shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id]
-  };
+  // let templateVars = { 
+  //   shortURL: req.params.id,
+  //   longURL: urlDatabase[req.params.id]
+  // };
   if (validUser){
     console.log('validuser id ', validUser.id);
     //set cookie -- 
     res.cookie('user_id', validUser.id);
-    res.redirect('urls');
+    res.redirect('/urls');
   } else {
     res.status(403);
     console.log(res.status);

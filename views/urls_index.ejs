@@ -28,24 +28,37 @@
       <div class="jumbotron"> 
   <ul>
     <!--   <%= JSON.stringify(urls, null, 2)%> -->
+    <% if(!user.id ){ %>
+      <% for(item in urls) { %>
+        <li style="display: flex;line-height: 2; margin-bottom: 5px;">
+            <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;">
+                  <!-- <%= item %> -->
+                  <%= item %> 
+              </a>    
+        </li>
+        <% }; %>
+    <% } else{ %>
+      <% for(item in urls) { %>
+        <li style="display: flex;line-height: 2; margin-bottom: 5px;">
+            <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;">
+                
+                  <!-- <%= item %> -->
+                  <%= item %> 
+                  <span class="glyphicon n glyphicon-arrow-right"></span>
+                
+                <%= urls[item] %>
+              </a>          
+              <form method="GET" action="/urls/<%= item %>/put" class="form-item">
+                <button type="submit" value="Update" name="id" id="<%= item %>" class="btn btn-default">Update <span class="glyphicon glyphicon-edit"></span></button>
+              </form>
+              <form method="POST" action="/urls/<%= item %>/delete" class="form-item">
+                <button type="submit" value="Delete" name="id" id="<%= item %>" class="btn btn-danger">Delete <span class="glyphicon glyphicon-trash"></span></button>
+              </form>
+        </li>
+        <% }; %>
+    <% } %> 
 
-    <% for(item in urls) { %>
-      <li style="display: flex;line-height: 2; margin-bottom: 5px;">
-          <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;">
-              
-                <%= item %>
-                <span class="glyphicon n glyphicon-arrow-right"></span>
-              
-              <%= urls[item] %>
-            </a>          
-            <form method="GET" action="/urls/<%= item %>/put" class="form-item">
-              <button type="submit" value="Update" name="id" id="<%= item %>" class="btn btn-default">Update <span class="glyphicon glyphicon-edit"></span></button>
-            </form>
-            <form method="POST" action="/urls/<%= item %>/delete" class="form-item">
-              <button type="submit" value="Delete" name="id" id="<%= item %>" class="btn btn-danger">Delete <span class="glyphicon glyphicon-trash"></span></button>
-            </form>
-      </li>
-      <% }; %>
+ 
   </ul>
   </div>
 </main>
