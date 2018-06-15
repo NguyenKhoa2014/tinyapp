@@ -1,5 +1,6 @@
  
 // load the things we need
+const bcrypt = require('bcrypt');
 var express = require('express');
 var app = express();
 var PORT = 8080;
@@ -23,12 +24,13 @@ const users = {
     id: "userRandomID", 
     email: "user@example.com", 
     password: "purple-monkey-dinosaur",
-  
+    hashedPassword: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "dishwasher-funk",
+    hashedPassword: bcrypt.hashSync("dishwasher-funk", 10)
   }
 }
 function findUserById(id){
@@ -205,8 +207,12 @@ app.get('/login', (req, res) => {
 function validateLogin(data){
   let email = data.email;
   let password = data.password;
+  //let hashedPassword = bcrypt.hashSync(password, 10);
   for(let key in users){
-    if (users[key].email === email && users[key].password=== password) {
+  //let hashedPassword = bcrypt.hashSync(password, 10);
+  //bcrypt.compareSync("pink-donkey-minotaur", hashedPassword);
+  //if (users[key].email === email && users[key].hashedPassword === hashedPassword) {
+  if (users[key].email === email && bcrypt.compareSync(password, users[key].hashedPassword) ) {
       return users[key];
     }
   }
@@ -217,6 +223,7 @@ function validateLogin(data){
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  //const hashedPassword = bcrypt.hashSync(password, 10);
   const data = {
     email: email,
     password: password
@@ -303,10 +310,11 @@ app.post("/register", (req, res) => {
     const existing = checkExistingEmail(email);
     if (!existing){
       const password = req.body.password;
+      const hashedPassword = bcrypt.hashSync(password, 10);
       user = {
         id: id_str,
         email: email,
-        password: password
+        hashedPassword: hashedPassword
       }
       users[id] = user;
       res.cookie('user_id', id_str);
