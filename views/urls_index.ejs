@@ -25,16 +25,17 @@
     <% include ./partials/_header %>
   </header>
   <main>
-      <div class="jumbotron"> 
+      <div class="jumbotron">
+      <h1>URLS Index Page</h1> 
   <ul>
     <!--   <%= JSON.stringify(urls, null, 2)%> -->
     <% if(!user.id ){ %>
       <% for(item in urls) { %>
         <li style="display: flex;line-height: 2; margin-bottom: 5px;">
-            <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;">
+            <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;" class="shortURL">
                   <!-- <%= item %> -->
                   <%= item %> 
-              </a>    
+            </a>    
         </li>
         <% }; %>
     <% } else{ %>
@@ -65,6 +66,13 @@
 <footer>
     <% include ./partials/footer %>
 </footer>
+<script>
+  var shortURLs = document.querySelectorAll('a .shortURL');
+  shortURLs.map( shortURL => shortURL.addEventListener('click', (shortURL) => {
+    console.log('click ', shortURL.textContent);
+  }))
+  
+</script>
 </body>
 
 </html>

@@ -10,11 +10,16 @@ const cookieParser = require('cookie-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
+
 app.set("view engine", "ejs");
-var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
- };
+// var urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+//  };
  var urlDatabase1 = {
   "b2xVn2": {url:"http://www.lighthouselabs.ca", user_id:"userRandomID"},
   "9sm5xK": {url:"http://www.google.com", user_id:"user2RandomID"},
@@ -24,16 +29,19 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur",
-    hashedPassword: bcrypt.hashSync("purple-monkey-dinosaur", 10)
+    password: "test",
+    hashedPassword: bcrypt.hashSync("test", 10)
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk",
-    hashedPassword: bcrypt.hashSync("dishwasher-funk", 10)
+    password: "test",
+    hashedPassword: bcrypt.hashSync("test", 10)
   }
 }
+
+console.log("testing",urlDatabase1);
+console.log("testing", urlsForUser("user2RandomID"));
 function findUserById(id){
   var flag = false;
   for(let key in users){
@@ -47,38 +55,58 @@ function findUserById(id){
 function urlsForUser(id){
   const urls = {}
   for(let item in urlDatabase1){
+    console.log("each object inside", urlDatabase1[item]);
+    console.log(urlDatabase1[item].user_id, id, "checking");
     if (urlDatabase1[item].user_id === id){
+      console.log('user_id, id passed in ',urlDatabase1[item].user_id,id)
       urls[item] = urlDatabase1[item].url;
+      console.log("asldjfkalskdjf",urls);
     }
   }
-  console.log('in urls', urls);
+  //console.log('in urls', urls);
   return urls;
-} 
+}
+
+function getEmailById(id){
+  let user = {};
+  for(let item in users){
+    if (users[item].id === id){
+      return users[item];
+    }
+  }
+  return user;
+}
 app.get("/urls", (req, res) => {
-  var id = req.cookies['user_id'];
-  console.log("testing id", id);
+  //var id = req.cookies['user_id'];
+  let id = req.session.user_id;
+  //console.log("testing id", id);
   var foundUser = findUserById(id);
-  console.log("found user :", foundUser);
-  var user = {
-    id: "", 
-     
-  };
+  //console.log("found user :", foundUser);
+   
+ 
  
   if (foundUser){
-    user['id'] = id;
-    console.log(user);
-    console.log(id);
+    // user['id'] = {
+    //   id : id,
+        
+    // };
+    let user = getEmailById(id);
+    //console.log(user);
+    //console.log(id);
+    console.log(urlDatabase1);
+    console.log("testing id", id);
     var urls = urlsForUser(id);
-    console.log("test ", urls);
+    console.log("testing2",urls);
+    //console.log("test ", urls);
     let templateVars = { 
       // urls: urlDatabase1,
       urls: urls,
       users: users,
       user: user
      };
-     console.log('found user');
+     //console.log('found user');
      for(var item in urlDatabase1){
-       console.log(item, urlDatabase1[item].user_id, urlDatabase1[item].url)
+      // console.log(item, urlDatabase1[item].user_id, urlDatabase1[item].url)
      }
      res.render('urls_index', templateVars);
   } else {
@@ -87,39 +115,45 @@ app.get("/urls", (req, res) => {
       users: users,
       user: user
      };
+
+     console.log(templateVars["urls"]);
     res.render('urls_index', templateVars);
   }  
 
 });
 
 function ensureLoggedIn(req, res, next){
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   if (userId){
     res.locals.user = users[userId];
-    res.locals.urls = urlDatabase;
+    res.locals.urls = urlDatabase1;
     return next();
   } else {
     return res.redirect('/login')
   }
 }
 
-// app.get("/urls/new", ensureLoggedIn, (req, res) => {
+
   app.get("/urls/new", ensureLoggedIn, (req, res) => {
-  id = req.cookies['user_id'];
-  const user = {
-    id: id
-  } 
+  //id = req.cookies['user_id'];
+  id = req.session.user_id;
+  let user = getEmailById(id);
   let templateVars = { 
-    urls: urlDatabase,
+    urls: urlDatabase1,
     user: user
    };
-   console.log(templateVars);
+   //console.log(templateVars);
   res.render("urls_new", templateVars);
 });
 app.post("/urls/new", (req, res) => {
    
   var shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body['longURL']; //get the URL out from the body of the request 
+  //urlDatabase1[shortURL] = req.body['longURL']; //get the URL out from the body of the request
+  urlDatabase1[shortURL] = {
+    url: req.body['longURL'],
+    user_id: req.session.user_id
+  }
+  console.log('after url/new ',urlDatabase1) ;
   res.redirect('/urls')
 });
 
@@ -128,7 +162,7 @@ app.get("/urls/:id", (req, res) => {
   const user = users[id];
   let templateVars = { 
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase1[req.params.id],
     user
   };
    
@@ -136,12 +170,16 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  var id = req.cookies['user_id'];
-  var user = {
-    id: id
-  }
+   
+  //var id = req.cookies['user_id'];
+  var id = req.session.user_id;
+  //console.log('in /', id);
+  // var user = {
+  //   id: id
+  // }
+  let user = getEmailById(id);
   let templateVars = { 
-    urls: urlDatabase,
+    urls: urlDatabase1,
     user: user,
    }; 
   res.render("./pages/index", templateVars);
@@ -149,8 +187,8 @@ app.get("/", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   // let longURL = ...
-  console.log(req.params.shortURL);
-  var longURL = urlDatabase[req.params.shortURL];
+  //console.log(req.params.shortURL);
+  var longURL = urlDatabase1[req.params.shortURL];
   res.redirect(longURL);
 });
 
@@ -158,18 +196,31 @@ app.post("/urls/:id/delete", (req, res) => {
    
   //console.log(req.params.id);
   var deleteURL = req.params.id;
-  delete urlDatabase[deleteURL];
-  //console.log(urlDatabase);
+  delete urlDatabase1[deleteURL];
+  //console.log(urlDatabase1);
   res.redirect("/urls"); //redirect 
 })
 
 app.get("/urls/:id/put", (req, res) => {
-  const id = req.cookies.user_id;
-  const user = users[id];
+  
+  const id = req.params.id; //short URL
+  const user_id = req.session.user_id;
+  longURL = urlDatabase1[id].url;
+  
+  const user = getEmailById(user_id);
+  console.log('user is', user);
+  console.log("user cookie check", req.session.user_id);
+  urlDatabase1[id] = {
+    url : longURL,
+    user_id : req.session.user_id
+  }
+  console.log('urldatabase1 after id/put ', urlDatabase1);
+  //const user = users[id];
+  //const user = getEmailById(id);
   let templateVars = { 
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
-    user
+    longURL: longURL,
+    user : user
   }; 
  
   res.render("urls_show", templateVars);
@@ -177,11 +228,14 @@ app.get("/urls/:id/put", (req, res) => {
 })
 
 app.post("/urls/:id/put", (req, res)=> {
-  //console.log("in post");
-  //console.log(req.body.longURL);
-  //console.log(req.body['longURL']);
-  //console.log(req.params.id);
-  urlDatabase[req.params.id] = req.body.longURL;
+  const id = req.params.id; //short URL
+  const user_id = req.session.user_id;
+  longURL = req.body.longURL;
+  //urlDatabase1[req.params.id] = req.body.longURL;
+  urlDatabase1[id] = {
+    url : longURL,
+    user_id : req.session.user_id
+  }
   //console.log(urlDatabase);
   res.redirect('/urls');
 })
@@ -192,27 +246,11 @@ app.get('/login', (req, res) => {
   res.render('login');
 })
 
-// function validateLogin(data){
-//   let email = data.email;
-//   let password = data.password;
-//   const isValidLogin = true;
-//   for(let key in users){
-//     let user = users[key];
-//     if (user.email === email && user.password === password) {
-//       //return true;
-//       return user;
-//     }
-//   }
-//   return false;
-// }
+ 
 function validateLogin(data){
   let email = data.email;
   let password = data.password;
-  //let hashedPassword = bcrypt.hashSync(password, 10);
   for(let key in users){
-  //let hashedPassword = bcrypt.hashSync(password, 10);
-  //bcrypt.compareSync("pink-donkey-minotaur", hashedPassword);
-  //if (users[key].email === email && users[key].hashedPassword === hashedPassword) {
   if (users[key].email === email && bcrypt.compareSync(password, users[key].hashedPassword) ) {
       return users[key];
     }
@@ -224,25 +262,25 @@ function validateLogin(data){
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  
   //const hashedPassword = bcrypt.hashSync(password, 10);
   const data = {
     email: email,
     password: password
   }
   const validUser = validateLogin(data);
-  console.log('valid user ', validUser);
-  // let templateVars = { 
-  //   shortURL: req.params.id,
-  //   longURL: urlDatabase[req.params.id]
-  // };
+
   if (validUser){
-    console.log('validuser id ', validUser.id);
+    //console.log('validuser id, email ', validUser.id, validUser.email);
     //set cookie -- 
-    res.cookie('user_id', validUser.id);
+  
+    req.session.user_id = validUser.id;
+    console.log('what is the id', validUser.id);
+      
     res.redirect('/urls');
   } else {
     res.status(403);
-    console.log(res.status);
+    //console.log('not a valid user ',res.status);
     res.render('login' );
   }
    
@@ -252,7 +290,7 @@ app.get('/logout', (req, res) => {
   const user = {};
   let templateVars = { 
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase1[req.params.id],
     user: user
   };
   res.render('logout',templateVars);
@@ -268,7 +306,7 @@ app.post('/logout', (req, res) => {
 app.get("/register", (req, res) => {
   const user = {};
   let templateVars = { 
-    urls: urlDatabase,
+    urls: urlDatabase1,
     user_id: false,
     email: false,
     error: false,
@@ -276,7 +314,7 @@ app.get("/register", (req, res) => {
     emailError: false,
     user: user
    };
-  console.log('get for register', req.cookies['user_id']);
+  //console.log('get for register', req.cookies['user_id']);
   if(!req.cookies['user_id']){
     res.render('register', templateVars);
   } 
@@ -284,7 +322,7 @@ app.get("/register", (req, res) => {
 })
 
 function validateData(data) {
-  console.log(data.email);
+  //console.log(data.email);
   if (data.email && data.email.length > 0 && data.password && data.password.length > 0) {
     return true;
   }
@@ -299,12 +337,12 @@ function checkExistingEmail(email){
   return false;
 }
 app.post("/register", (req, res) => {
-  console.log('post for register');
+  //console.log('post for register');
   const id = generateUserID();
   //console.log(req.body);
   let user = {};
   const valid = validateData(req.body);
-  console.log(valid);
+  //console.log(valid);
   if (valid){
     const id_str = id.toString();
     const email = req.body.email;
@@ -325,7 +363,7 @@ app.post("/register", (req, res) => {
       let tmp_id = req.cookie['user_id']? req.cookie['user_id'] : '';
       const user = { id : tmp_id};
       let templateVars = { 
-        urls: urlDatabase,
+        urls: urlDatabase1,
         error: true,
         message: false,
         email: req.body.email,
@@ -343,7 +381,7 @@ app.post("/register", (req, res) => {
       id: ''
     }
     let templateVars = { 
-      urls: urlDatabase,
+      urls: urlDatabase1,
       error: true,
       message: 'all fields are required',
       user: user 
@@ -378,4 +416,4 @@ function generateUserID(){
  
 
 app.listen(8080);
-console.log('8080 is the magic port');
+//console.log('8080 is the magic port');

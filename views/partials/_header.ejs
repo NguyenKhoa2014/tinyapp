@@ -4,7 +4,7 @@
   <div class="container-fluid">
   
       <div class="navbar-header">
-          <a class="navbar-brand" href="#">
+          <a class="navbar-brand" href="/">
               <span class="glyphicon glyphicon glyphicon-tree-deciduous"></span>
               Tiny App
           </a>
@@ -13,12 +13,14 @@
               <li><a href="/">Home</a></li>
               <li><a href="/urls">urls</a></li>
               <li><a href="/urls/new">new</a></li>
-              
+               
  
               <% if(!user.id ){ %>
+                
                 <li><a href="/login">login</a></li>
               <% } else{ %>
-                <li><a href="/logout"><%= user.id %><span style="margin-left: 2px;">logout</span> </a></li>
+                <li><a href="/urls/new" style="margin-left:30px;"><%= user.email %></a></li>
+                <li><a href="/logout">logout</a> </li>
               <% } %>
               <!-- <li style="margin-left:200px;"><a href="#"> 
                     <% if(user === {} || !user){ %>
