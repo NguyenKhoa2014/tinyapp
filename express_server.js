@@ -1,6 +1,7 @@
  
 // load the things we need
 const bcrypt = require('bcrypt');
+var cookieSession = require('cookie-session');
 var express = require('express');
 var app = express();
 var PORT = 8080;
