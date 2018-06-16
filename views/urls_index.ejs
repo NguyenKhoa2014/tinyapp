@@ -32,7 +32,7 @@
     <% if(!user.id ){ %>
       <% for(item in urls) { %>
         <li style="display: flex;line-height: 2; margin-bottom: 5px;">
-            <a href="<%= urls[item] %>" target="blank" class="form-item" style="width:300px;" class="shortURL">
+            <a href="#" target="blank" class="form-item shortURL" style="width:300px;" >
                   <!-- <%= item %> -->
                   <%= item %> 
             </a>    
@@ -67,9 +67,10 @@
     <% include ./partials/footer %>
 </footer>
 <script>
-  var shortURLs = document.querySelectorAll('a .shortURL');
+  var shortURLs = document.querySelectorAll('.shortURL');
+  console.log(shortURLs);
   shortURLs.map( shortURL => shortURL.addEventListener('click', (shortURL) => {
-    console.log('click ', shortURL.textContent);
+    console.log( shortURL.textContent);
   }))
   
 </script>

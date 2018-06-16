@@ -86,10 +86,7 @@ app.get("/urls", (req, res) => {
  
  
   if (foundUser){
-    // user['id'] = {
-    //   id : id,
-        
-    // };
+ 
     let user = getEmailById(id);
     //console.log(user);
     //console.log(id);
@@ -110,6 +107,7 @@ app.get("/urls", (req, res) => {
      }
      res.render('urls_index', templateVars);
   } else {
+    user = {};
     let templateVars = { 
       urls: urlDatabase1,
       users: users,
@@ -288,6 +286,7 @@ app.post('/login', (req, res) => {
 
 app.get('/logout', (req, res) => {
   const user = {};
+  req.session = null;
   let templateVars = { 
     shortURL: req.params.id,
     longURL: urlDatabase1[req.params.id],
@@ -300,7 +299,7 @@ app.post('/logout', (req, res) => {
   if(req.cookies['user_id']){
     res.clearCookie('user_id');
   }
-  res.redirect('login'); 
+  res.redirect('urls'); 
 })
 
 app.get("/register", (req, res) => {

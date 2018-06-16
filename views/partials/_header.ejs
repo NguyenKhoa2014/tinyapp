@@ -11,16 +11,16 @@
   
           <ul class="nav navbar-nav">
               <li><a href="/">Home</a></li>
-              <li><a href="/urls">urls</a></li>
-              <li><a href="/urls/new">new</a></li>
+              <li><a href="/urls">Urls</a></li>
+              <li><a href="/urls/new">New URL</a></li>
                
  
               <% if(!user.id ){ %>
                 
-                <li><a href="/login">login</a></li>
+                <li><a href="/login">Login</a></li>
               <% } else{ %>
-                <li><a href="/urls/new" style="margin-left:30px;"><%= user.email %></a></li>
-                <li><a href="/logout">logout</a> </li>
+                <li><a href="/urls/new" style="margin-left:30px; cursor: auto;"><%= user.email %></a></li>
+                <li><a href="/logout">Logout</a> </li>
               <% } %>
               <!-- <li style="margin-left:200px;"><a href="#"> 
                     <% if(user === {} || !user){ %>
