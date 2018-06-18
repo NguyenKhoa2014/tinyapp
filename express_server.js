@@ -16,10 +16,7 @@ app.use(cookieSession({
 }))
 
 app.set("view engine", "ejs");
-// var urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-//  };
+
  var urlDatabase1 = {
   "b2xVn2": {url:"http://www.lighthouselabs.ca", user_id:"userRandomID"},
   "9sm5xK": {url:"http://www.google.com", user_id:"user2RandomID"},
@@ -184,10 +181,9 @@ app.get("/", (req, res) => {
 }); 
 
 app.get("/u/:shortURL", (req, res) => {
-  // let longURL = ...
-  //console.log(req.params.shortURL);
-  var longURL = urlDatabase1[req.params.shortURL];
-  res.redirect(longURL);
+  shortURL = req.params.id;
+  
+  res.send('For testing purposes, not checking for user specific urls <br/>' + '<b>' + urlDatabase1[req.params.shortURL].url + '</b>');
 });
 
 app.post("/urls/:id/delete", (req, res) => {
