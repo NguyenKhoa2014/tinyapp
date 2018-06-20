@@ -337,6 +337,8 @@ app.post("/register", (req, res) => {
       }
       users[id] = user;
       res.cookie('user_id', id_str);
+      req.session.user_id = id_str;
+
       res.redirect('urls');
        
     } else {
