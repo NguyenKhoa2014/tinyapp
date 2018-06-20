@@ -37,8 +37,7 @@ const users = {
   }
 }
 
-console.log("testing",urlDatabase1);
-console.log("testing", urlsForUser("user2RandomID"));
+ 
 function findUserById(id){
   var flag = false;
   for(let key in users){
@@ -52,15 +51,14 @@ function findUserById(id){
 function urlsForUser(id){
   const urls = {}
   for(let item in urlDatabase1){
-    console.log("each object inside", urlDatabase1[item]);
-    console.log(urlDatabase1[item].user_id, id, "checking");
+     
     if (urlDatabase1[item].user_id === id){
-      console.log('user_id, id passed in ',urlDatabase1[item].user_id,id)
+       
       urls[item] = urlDatabase1[item].url;
-      console.log("asldjfkalskdjf",urls);
+       
     }
   }
-  //console.log('in urls', urls);
+   
   return urls;
 }
 
@@ -74,34 +72,21 @@ function getEmailById(id){
   return user;
 }
 app.get("/urls", (req, res) => {
-  //var id = req.cookies['user_id'];
-  let id = req.session.user_id;
-  //console.log("testing id", id);
-  var foundUser = findUserById(id);
-  //console.log("found user :", foundUser);
    
- 
- 
+  let id = req.session.user_id;
+   
+  var foundUser = findUserById(id);
   if (foundUser){
- 
     let user = getEmailById(id);
-    //console.log(user);
-    //console.log(id);
-    console.log(urlDatabase1);
-    console.log("testing id", id);
+     
     var urls = urlsForUser(id);
-    console.log("testing2",urls);
-    //console.log("test ", urls);
+    
     let templateVars = { 
-      // urls: urlDatabase1,
       urls: urls,
       users: users,
       user: user
      };
-     //console.log('found user');
-     for(var item in urlDatabase1){
-      // console.log(item, urlDatabase1[item].user_id, urlDatabase1[item].url)
-     }
+
      res.render('urls_index', templateVars);
   } else {
     user = {};
@@ -109,9 +94,7 @@ app.get("/urls", (req, res) => {
       urls: urlDatabase1,
       users: users,
       user: user
-     };
-
-     console.log(templateVars["urls"]);
+     };      
     res.render('urls_index', templateVars);
   }  
 
@@ -130,25 +113,25 @@ function ensureLoggedIn(req, res, next){
 
 
   app.get("/urls/new", ensureLoggedIn, (req, res) => {
-  //id = req.cookies['user_id'];
+   
   id = req.session.user_id;
   let user = getEmailById(id);
   let templateVars = { 
     urls: urlDatabase1,
     user: user
    };
-   //console.log(templateVars);
+    
   res.render("urls_new", templateVars);
 });
 app.post("/urls/new", (req, res) => {
    
   var shortURL = generateRandomString();
-  //urlDatabase1[shortURL] = req.body['longURL']; //get the URL out from the body of the request
+   
   urlDatabase1[shortURL] = {
     url: req.body['longURL'],
     user_id: req.session.user_id
   }
-  console.log('after url/new ',urlDatabase1) ;
+   
   res.redirect('/urls')
 });
 
@@ -166,12 +149,9 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/", (req, res) => {
    
-  //var id = req.cookies['user_id'];
+   
   var id = req.session.user_id;
-  //console.log('in /', id);
-  // var user = {
-  //   id: id
-  // }
+   
   let user = getEmailById(id);
   let templateVars = { 
     urls: urlDatabase1,
@@ -182,16 +162,25 @@ app.get("/", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.id;
-  
-  res.send('For testing purposes, not checking for user specific urls <br/>' + '<b>' + urlDatabase1[req.params.shortURL].url + '</b>');
+  var id = req.session.user_id;
+   
+  let user = getEmailById(id);
+  let templateVars = { 
+    urls: urlDatabase1,
+    user: user,
+    shortURL: req.params.id,
+    longURL: urlDatabase1[req.params.shortURL].url
+   };
+   res.redirect(urlDatabase1[req.params.shortURL].url) 
+  //res.render("urls_show", templateVars);
+   
 });
 
 app.post("/urls/:id/delete", (req, res) => {
    
-  //console.log(req.params.id);
   var deleteURL = req.params.id;
   delete urlDatabase1[deleteURL];
-  //console.log(urlDatabase1);
+  
   res.redirect("/urls"); //redirect 
 })
 
@@ -202,15 +191,12 @@ app.get("/urls/:id/put", (req, res) => {
   longURL = urlDatabase1[id].url;
   
   const user = getEmailById(user_id);
-  console.log('user is', user);
-  console.log("user cookie check", req.session.user_id);
+   
   urlDatabase1[id] = {
     url : longURL,
     user_id : req.session.user_id
   }
-  console.log('urldatabase1 after id/put ', urlDatabase1);
-  //const user = users[id];
-  //const user = getEmailById(id);
+   
   let templateVars = { 
     shortURL: req.params.id,
     longURL: longURL,
@@ -225,12 +211,12 @@ app.post("/urls/:id/put", (req, res)=> {
   const id = req.params.id; //short URL
   const user_id = req.session.user_id;
   longURL = req.body.longURL;
-  //urlDatabase1[req.params.id] = req.body.longURL;
+   
   urlDatabase1[id] = {
     url : longURL,
     user_id : req.session.user_id
   }
-  //console.log(urlDatabase);
+   
   res.redirect('/urls');
 })
 
@@ -256,8 +242,7 @@ function validateLogin(data){
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  
-  //const hashedPassword = bcrypt.hashSync(password, 10);
+   
   const data = {
     email: email,
     password: password
@@ -265,16 +250,16 @@ app.post('/login', (req, res) => {
   const validUser = validateLogin(data);
 
   if (validUser){
-    //console.log('validuser id, email ', validUser.id, validUser.email);
+     
     //set cookie -- 
   
     req.session.user_id = validUser.id;
-    console.log('what is the id', validUser.id);
+     
       
     res.redirect('/urls');
   } else {
     res.status(403);
-    //console.log('not a valid user ',res.status);
+     
     res.render('login' );
   }
    
@@ -309,7 +294,7 @@ app.get("/register", (req, res) => {
     emailError: false,
     user: user
    };
-  //console.log('get for register', req.cookies['user_id']);
+   
   if(!req.cookies['user_id']){
     res.render('register', templateVars);
   } 
@@ -317,7 +302,7 @@ app.get("/register", (req, res) => {
 })
 
 function validateData(data) {
-  //console.log(data.email);
+   
   if (data.email && data.email.length > 0 && data.password && data.password.length > 0) {
     return true;
   }
@@ -332,12 +317,12 @@ function checkExistingEmail(email){
   return false;
 }
 app.post("/register", (req, res) => {
-  //console.log('post for register');
+   
   const id = generateUserID();
-  //console.log(req.body);
+   
   let user = {};
   const valid = validateData(req.body);
-  //console.log(valid);
+   
   if (valid){
     const id_str = id.toString();
     const email = req.body.email;

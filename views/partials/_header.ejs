@@ -1,6 +1,6 @@
 <!-- views/partials/header.ejs -->
  
-<nav class="navbar navbar-default" role="navigation">
+<nav class="navbar navbar-default" role="navigation" style="border: 1px solid grey">
   <div class="container-fluid">
   
       <div class="navbar-header">
@@ -10,34 +10,19 @@
           </a>
   
           <ul class="nav navbar-nav">
-              <li style="border-right: 1px solid white; border-left: 1px solid white;"><a href="/">Home</a></li>
-              <li style="border-right: 1px solid white; border-left: 1px solid white;"><a href="/urls">Urls</a></li>
-              <li style="border-right: 1px solid white; border-left: 1px solid white;"><a href="/urls/new">New URL</a></li>
+              <li style="border-right: 1px solid white; border-left: 1px solid grey;"><a href="/">Home</a></li>
+              <li style="border-right: 1px solid white; border-left: 1px solid grey;"><a href="/urls">Urls</a></li>
+              <li style="border-right: 1px solid white; border-left: 1px solid grey;"><a href="/urls/new">New URL</a></li>
                
  
               <% if(!user.id ){ %>
                 
                 <li><a href="/login">Login</a></li>
               <% } else{ %>
-                <li><a href="/urls/new" style="margin-left:30px; cursor: auto;"><%= user.email %></a></li>
-                <li style="border-right: 1px solid white; border-left: 1px solid white;"><a href="/logout">Logout</a> </li>
+                <li style="border-right: 1px solid white; border-left: 1px solid grey;"><a href="/urls/new" style="margin-left:30px; cursor: auto;"><%= user.email %></a></li>
+                <li ><a href="/logout">Logout</a> </li>
               <% } %>
-              <!-- <li style="margin-left:200px;"><a href="#"> 
-                    <% if(user === {} || !user){ %>
-                        <form method="POST" action="/login" style="display:flex;">
-                            <input name="email" id="email" placeholder="enter your email" class="form-control" required/>
-                            <input name="password" id="password" placeholder="enter your password" class="form-control" required/>
-                            <input type="submit" value="login" class="btn btn-default" style="margin-left:3px;"/> 
-                        </form>            
-                      <% } else{ %>
-                        <form method="POST" action="/logout" style="display:flex;">
-                            <%= user['id'] %>
-                            <input type="submit" value="logout" class="btn btn-default" style="margin-left: 5px; line-height: 0.6;"/> 
-                        </form>   
-                         
-                      <% } %>
-                  </a>
-              </li> -->
+              
           </ul>
  
  
